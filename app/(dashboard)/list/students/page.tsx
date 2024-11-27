@@ -4,6 +4,7 @@ import Table from "@/components/Table"
 import Tablesearch from "@/components/Tablesearch"
 import { role, studentsData, teachersData } from "@/lib/data"
 import prisma from "@/lib/prisma"
+import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Class, Grade, Student } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
@@ -77,14 +78,29 @@ const renderRow = (item: StudentList) => (
     </td>
   </tr>
 )
-const StudentListPage = async() => {
+const StudentListPage = async({
+  searchParams,
+}:{
+  searchParams: {[key:string]:string} | undefined
+}) => {
 
-  const data = await prisma.student.findMany({
-    include:{
-      class: true,
-      grade: true,
-    },
-  })
+  const {page, ...queryParams} = searchParams;
+
+  const p = page ? parseInt(page) : 1;
+
+  const [data, count] = await prisma.$transaction([
+    prisma.student.findMany({
+      include:{
+        class: true,
+        grade: true,
+      },
+      take: ITEM_PER_PAGE,
+      skip: ITEM_PER_PAGE * (p -1),
+    }),
+    prisma.student.count()
+  ])
+  
+ 
 
   return (
     <div className='bg-white p-4 rounded-md flex-1 m-4 mt-0'>
@@ -113,7 +129,7 @@ const StudentListPage = async() => {
       {/* LIST */}
       <Table columns={columns} renderRow={renderRow} data={data}/>
       {/* PAGINATION */}
-      <Pagination />
+      <Pagination page={p} count={count} />
     </div>
   )
 }
