@@ -5,7 +5,7 @@ import Tablesearch from "@/components/Tablesearch"
 import { parentsData, role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
-import { Parent, Student } from "@prisma/client"
+import { Parent, Prisma, Student } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
 import { ImageResponse } from "next/server"
@@ -44,11 +44,11 @@ const renderRow = (item: ParentList) => (
     <td className="flex items-center gap-4 p-4">
       
       <div className="flex flex-col">
-        <h3 className="font-semibold">{item.name}</h3>
+        <h3 className="font-semibold">{item.name + " " + item.surname}</h3>
         <p className="text-xs text-gray-500">{item?.email}</p>
       </div>
     </td>
-    <td className="hidden md:table-cell">{item.students.map((student)=>student.name).join(",")}</td>
+    <td className="hidden md:table-cell">{item.students.map((student)=>student.name+" "+student.surname).join(",")}</td>
     <td className="hidden lg:table-cell">{item.phone}</td>
     <td className="hidden lg:table-cell">{item.address}</td>
     <td>
@@ -77,15 +77,36 @@ const renderRow = (item: ParentList) => (
 const ParentListPage = async({
   searchParams,
 }:{
-  searchParams: {[key:string]:string} | undefined
+  searchParams: {[key:string]:string | undefined }
 }) => {
 
   const {page, ...queryParams} = searchParams;
 
   const p = page ? parseInt(page) : 1;
 
+  // URL PARAMS CONDITION
+
+  const query: Prisma.ParentWhereInput = {}
+
+  if (queryParams) {
+    for (const[key,value] of Object.entries(queryParams)) {
+      if(value !== undefined){
+        switch(key) {
+          case "search":
+            query.name = {contains:value, mode:"insensitive"}
+            break
+          default:
+            break
+        }
+      }
+      
+    }
+  }
+
+  
   const [data, count] = await prisma.$transaction([
     prisma.parent.findMany({
+      where:query,
       include:{
         students: true
       },

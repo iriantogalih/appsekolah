@@ -5,7 +5,7 @@ import Tablesearch from "@/components/Tablesearch"
 import { role, subjectsData } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
-import { Subject, Teacher } from "@prisma/client"
+import { Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
 import { ImageResponse } from "next/server"
@@ -62,15 +62,35 @@ const SubjectListPage = async (
   {
     searchParams,
   }:{
-    searchParams: {[key:string]:string} | undefined
+    searchParams: {[key:string]:string | undefined }
   }) => {
     
     const {page, ...queryParams} = searchParams;
   
     const p = page ? parseInt(page) : 1;
   
+    // URL PARAMS CONDITION
+
+  const query: Prisma.SubjectWhereInput = {}
+
+  if (queryParams) {
+    for (const[key,value] of Object.entries(queryParams)) {
+      if(value !== undefined){
+        switch(key) {
+          case "search":
+            query.name = {contains:value, mode:"insensitive"}
+            break
+          default:
+            break
+        }
+      }
+      
+    }
+  }
+  
     const [data, count] = await prisma.$transaction([
       prisma.subject.findMany({
+        where:query,
         include:{
           teachers: true
         },

@@ -5,12 +5,12 @@ import Tablesearch from "@/components/Tablesearch"
 import { classesData,role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
-import { Class, Grade, Teacher } from "@prisma/client"
+import { Class, Grade, Prisma, Teacher } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
 import { ImageResponse } from "next/server"
 
-type ClassesList = Class & {supervisor: Teacher[]} & {grades: Grade[]}
+type ClassesList = Class & {supervisor: Teacher} & {grade: Grade}
 
 {/* Create header table */}
 const columns = [
@@ -43,8 +43,8 @@ const renderRow = (item: ClassesList) => (
   <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
     <td className="flex items-center gap-4 p-4">{item.name}</td>
     <td className="">{item.capacity}</td>
-    <td className="hidden lg:table-cell">{item.gradeId}</td>
-    <td className="hidden lg:table-cell">{item.supervisorId}</td>
+    <td className="hidden lg:table-cell">{item.grade.level}</td>
+    <td className="hidden lg:table-cell">{item.supervisor.name + " " + item.supervisor.surname}</td>
     <td>
       <div className="flex items-center gap-2">
         {/*<Link href={`/list/classes/${item.id}`}>
@@ -70,15 +70,37 @@ const renderRow = (item: ClassesList) => (
 const ClassesListPage = async ({
   searchParams,
 }:{
-  searchParams: {[key:string]:string} | undefined
+  searchParams: {[key:string]:string | undefined }
 }) => {
   
   const {page, ...queryParams} = searchParams;
 
   const p = page ? parseInt(page) : 1;
 
+  // URL PARAMS CONDITION
+
+  const query: Prisma.ClassWhereInput = {}
+
+  if (queryParams) {
+    for (const[key,value] of Object.entries(queryParams)) {
+      if(value !== undefined){
+        switch(key) {
+          case "supervisorId":
+            query.supervisorId = value
+          break
+          case "search":
+            query.name = {contains:value, mode:"insensitive"}
+          default:
+          break
+        }
+      }
+      
+    }
+  }
+
   const [data, count] = await prisma.$transaction([
     prisma.class.findMany({
+      where:query,
       include:{
         supervisor: true,
         grade: true,

@@ -5,7 +5,7 @@ import Tablesearch from "@/components/Tablesearch"
 import { role, teachersData } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
-import { Class, Subject, Teacher } from "@prisma/client"
+import { Class, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
 import { ImageResponse } from "next/server"
@@ -54,7 +54,7 @@ const renderRow = (item: TeacherList) => (
     <td className="flex items-center gap-4 p-4">
       <Image src={item.img || "/noAvatar.png"} alt="" width={40} height={40} className=" md:hidden xl:block w-10 h-10 rounded-full object-cover" />
       <div className="flex flex-col">
-        <h3 className="font-semibold">{item.name}</h3>
+        <h3 className="font-semibold">{item.name + " " + item.surname}</h3>
         <p className="text-xs text-gray-500">{item?.email}</p>
       </div>
     </td>
@@ -88,15 +88,43 @@ const renderRow = (item: TeacherList) => (
 const TeacherListPage = async ({
   searchParams,
 }:{
-  searchParams: {[key:string]:string} | undefined
+  searchParams: {[key:string]:string | undefined }
 }) => {
   
   const {page, ...queryParams} = searchParams;
 
   const p = page ? parseInt(page) : 1;
 
+  // URL PARAMS CONDITION
+
+  const query: Prisma.TeacherWhereInput = {}
+
+  if (queryParams) {
+    for (const[key,value] of Object.entries(queryParams)) {
+      if(value !== undefined){
+        switch(key) {
+          case "classId":
+            query.lesson={
+              some:{
+                classId:parseInt(value)
+              }
+            }
+          break
+          case "search":
+            query.name = {contains:value, mode:"insensitive"}
+          default:
+          break
+        }
+      }
+      
+    }
+  }
+  
+
+
   const [data, count] = await prisma.$transaction([
     prisma.teacher.findMany({
+      where:query,
       include:{
         subjects: true,
         class: true,
@@ -104,7 +132,8 @@ const TeacherListPage = async ({
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.teacher.count()
+    prisma.teacher.count({
+      where:query})
   ])
   
   return (
