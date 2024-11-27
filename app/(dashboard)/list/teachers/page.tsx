@@ -4,10 +4,12 @@ import Table from "@/components/Table"
 import Tablesearch from "@/components/Tablesearch"
 import { role, teachersData } from "@/lib/data"
 import prisma from "@/lib/prisma"
+import { ITEM_PER_PAGE } from "@/lib/settings"
 import { Class, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
 import { ImageResponse } from "next/server"
+import { string } from "zod"
 
 type TeacherList =Teacher & {subjects: Subject[]} & {class: Class[]}
 {/* Create header table */}
@@ -83,17 +85,28 @@ const renderRow = (item: TeacherList) => (
     </td>
   </tr>
 )
-const TeacherListPage = async () => {
+const TeacherListPage = async ({
+  searchParams,
+}:{
+  searchParams: {[key:string]:string} | undefined
+}) => {
+  
+  const {page, ...queryParams} = searchParams;
 
-  const data = await prisma.teacher.findMany({
-    include:{
-      subjects: true,
-      class: true,
-    },
-  })
+  const p = page ? parseInt(page) : 1;
 
-  console.log(data)
-
+  const [data, count] = await prisma.$transaction([
+    prisma.teacher.findMany({
+      include:{
+        subjects: true,
+        class: true,
+      },
+      take: ITEM_PER_PAGE,
+      skip: ITEM_PER_PAGE * (p - 1),
+    }),
+    prisma.teacher.count()
+  ])
+  
   return (
     <div className='bg-white p-4 rounded-md flex-1 m-4 mt-0'>
       {/* TOP */}
@@ -121,7 +134,7 @@ const TeacherListPage = async () => {
       {/* LIST */}
       <Table columns={columns} renderRow={renderRow} data={data}/>
       {/* PAGINATION */}
-      <Pagination />
+      <Pagination page={p} count={count} />
     </div>
   )
 }
