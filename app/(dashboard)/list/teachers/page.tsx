@@ -11,7 +11,7 @@ import Link from "next/link"
 import { ImageResponse } from "next/server"
 import { string } from "zod"
 
-type TeacherList =Teacher & {subjects: Subject[]} & {class: Class[]}
+type TeacherList =Teacher & {subject: Subject[]} & {class: Class[]}
 {/* Create header table */}
 const columns = [
   {
@@ -111,7 +111,10 @@ const TeacherListPage = async ({
             }
           break
           case "search":
-            query.name = {contains:value, mode:"insensitive"}
+            query.OR=[
+              {name: {contains:value, mode:"insensitive"}},
+              {surname: {contains:value, mode:"insensitive"}},
+            ]
           default:
           break
         }
@@ -126,8 +129,8 @@ const TeacherListPage = async ({
     prisma.teacher.findMany({
       where:query,
       include:{
-        subjects: true,
-        class: true,
+        subjects: {select:{name:true}},
+        class: {select:{name:true}},
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),

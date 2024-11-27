@@ -89,7 +89,9 @@ const LessonsListPage = async ({
             query.OR = [
               {subject: {name: {contains:value, mode:"insensitive"}}},
               {teacher: {name: {contains:value, mode:"insensitive"}}},
+              {teacher: {surname: {contains:value, mode:"insensitive"}}},
             ]
+
           default:
           break
         }

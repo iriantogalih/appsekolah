@@ -34,7 +34,7 @@ const renderRow = (item: SubjectsList) => (
     <td className="flex items-center gap-4 p-4">
         {item.name}
     </td>
-    <td className="">{item.teachers.map((teacher) => teacher.name).join(", ")}</td>
+    <td className="">{item.teachers.map((teacher) => teacher.name + " " + teacher.surname).join(", ")}</td>
     <td>
       <div className="flex items-center gap-2">
         {/*<Link href={`/list/subjects/${item.id}`}>
@@ -92,7 +92,7 @@ const SubjectListPage = async (
       prisma.subject.findMany({
         where:query,
         include:{
-          teachers: true
+          teachers: {select:{name: true, surname: true}}
         },
         take: ITEM_PER_PAGE,
         skip: ITEM_PER_PAGE * (p - 1),

@@ -106,7 +106,12 @@ const StudentListPage = async({
             }
           break
           case "search":
-            query.name = {contains:value, mode:"insensitive"}
+            query.OR = [
+              {name: {contains:value, mode:"insensitive"}},
+              {surname: {contains:value, mode:"insensitive"}},
+              {address: {contains:value, mode:"insensitive"}},
+              {class: {name: {contains:value, mode:"insensitive"}}},
+            ]
           default:
           break
         }
@@ -119,8 +124,8 @@ const StudentListPage = async({
     prisma.student.findMany({
       where:query,
       include:{
-        class: true,
-        grade: true,
+        class: {select: {name: true}},
+        grade: {select: {level: true}},
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p -1),

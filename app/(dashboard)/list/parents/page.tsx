@@ -93,7 +93,12 @@ const ParentListPage = async({
       if(value !== undefined){
         switch(key) {
           case "search":
-            query.name = {contains:value, mode:"insensitive"}
+            query.OR = [
+              {name:{contains:value, mode:"insensitive"}},
+              {surname:{contains:value, mode:"insensitive"}},
+              {address:{contains:value, mode:"insensitive"}},
+            ]
+            
             break
           default:
             break
@@ -108,7 +113,7 @@ const ParentListPage = async({
     prisma.parent.findMany({
       where:query,
       include:{
-        students: true
+        students: {select:{name:true, surname:true}}
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),

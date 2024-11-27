@@ -89,7 +89,13 @@ const ClassesListPage = async ({
             query.supervisorId = value
           break
           case "search":
-            query.name = {contains:value, mode:"insensitive"}
+            //query.name = {contains:value, mode:"insensitive"}
+            query.OR = [
+              {supervisor: {name: {contains:value, mode:"insensitive"}}},
+              {supervisor: {surname: {contains:value, mode:"insensitive"}}},
+              {name: {contains:value, mode:"insensitive"}},
+            ]
+            
           default:
           break
         }
@@ -102,8 +108,8 @@ const ClassesListPage = async ({
     prisma.class.findMany({
       where:query,
       include:{
-        supervisor: true,
-        grade: true,
+        supervisor: {select: {name: true, surname: true}},
+        grade: {select: {level: true}},
       },
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
