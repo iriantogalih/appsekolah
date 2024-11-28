@@ -142,6 +142,7 @@ model Exam {
 
 model Assignment {
   id        Int         @id @default(autoincrement())
+  title     String
   startDate DateTime
   dueDate   DateTime
 
