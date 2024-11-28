@@ -34,7 +34,7 @@ const renderRow = (item: SubjectsList) => (
     <td className="flex items-center gap-4 p-4">
         {item.name}
     </td>
-    <td className="">{item.teachers.map((teacher) => teacher.name + " " + teacher.surname).join(", ")}</td>
+    <td className="">{item.teachers.map((teacher) => teacher.name).join(", ")}</td>
     <td>
       <div className="flex items-center gap-2">
         {/*<Link href={`/list/subjects/${item.id}`}>
