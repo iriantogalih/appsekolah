@@ -97,7 +97,9 @@ const SubjectListPage = async (
         take: ITEM_PER_PAGE,
         skip: ITEM_PER_PAGE * (p - 1),
       }),
-      prisma.subject.count()
+      prisma.subject.count({
+        where:query,
+      })
     ])
 
   return (

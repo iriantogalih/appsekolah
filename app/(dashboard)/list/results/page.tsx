@@ -66,7 +66,7 @@ const renderRow = (item: Resultlist) => (
     </td>
     <td className="">{item.className}</td>
     <td className="hidden md:table-cell">{item.teacherName + " " + item.teacherSurname}</td>
-    <td className="hidden md:table-cell">{item.studentName + " " + item.studentSurname}</td>
+    <td className="hidden md:table-cell">{item.studentName+ " " +item.studentSurname}</td>
     <td className="hidden md:table-cell">{new Intl.DateTimeFormat("en-US").format(item.startTime)}</td>
     <td className="hidden md:table-cell">{item.score}</td>
     <td>
@@ -156,7 +156,9 @@ const ResultsListPage = async ({
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.result.count()
+    prisma.result.count({
+      where:query,
+    })
   ])
 
   const data = dataRes.map((item) => {
@@ -171,7 +173,7 @@ const ResultsListPage = async ({
       id: item.id,
       title: assessment.title,
       studentName: item.studnet?.name,
-      studnetSurname: item.studnet?.surname,
+      studentSurname: item.studnet?.surname,
       teacherName: assessment.lesson.teacher.name,
       teacherSurname: assessment.lesson.teacher.surname,
       score: item.score,

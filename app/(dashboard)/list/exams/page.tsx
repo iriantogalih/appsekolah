@@ -133,7 +133,9 @@ const ExamsListPage = async ({
         take: ITEM_PER_PAGE,
         skip: ITEM_PER_PAGE * (p - 1),
       }),
-      prisma.exam.count()
+      prisma.exam.count({
+        where:query,
+      })
     ])
 
   

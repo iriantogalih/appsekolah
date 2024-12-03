@@ -128,7 +128,9 @@ const AssignmentsListPage = async ({
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.assignment.count()
+    prisma.assignment.count({
+      where:query,
+    })
   ])
 
   return (

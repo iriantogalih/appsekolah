@@ -118,7 +118,9 @@ const ParentListPage = async({
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.parent.count()
+    prisma.parent.count({
+      where:query,
+    })
 
   ])
   

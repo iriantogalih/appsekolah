@@ -117,7 +117,9 @@ const LessonsListPage = async ({
       take: ITEM_PER_PAGE,
       skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.lesson.count()
+    prisma.lesson.count({
+      where:query,
+    })
   ])
 
   
