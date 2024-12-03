@@ -19,6 +19,10 @@ const columns = [
     accessor: "subject",
   },
   {
+    header: "Title", 
+    accessor: "title",
+  },
+  {
     header: "Class", 
     accessor: "class", 
     
@@ -37,6 +41,8 @@ const columns = [
 const renderRow = (item: Lessonlist) => (
   <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
     <td className="flex items-center gap-4 p-4">{item.subject.name}</td>
+    
+    <td className="">{item.name}</td>
     <td className="">{item.class.name}</td>
     <td className="hidden lg:table-cell">{item.teacher.name + " " + item.teacher.surname}</td>
     <td>
