@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/elements": "^0.21.1",
+    "@clerk/nextjs": "^6.8.0",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "5.22.0",
     "@radix-ui/react-slot": "^1.1.0",
@@ -42,5 +44,4 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
-  
 }
