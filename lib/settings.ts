@@ -1,8 +1,8 @@
 export const ITEM_PER_PAGE = 10
 
 type RouteAccessMap = {
-    [key: string]: string[];
-  };
+    [key: string]: string[]
+  }
   
 export const routeAccessMap: RouteAccessMap = {
     "/admin(.*)": ["admin"],
@@ -14,10 +14,13 @@ export const routeAccessMap: RouteAccessMap = {
     "/list/parents": ["admin", "teacher"],
     "/list/subjects": ["admin"],
     "/list/classes": ["admin", "teacher"],
+    "/list/lessons": ["admin", "teacher"],
+    "/list/reports": ["admin", "teacher", "parent"],
     "/list/exams": ["admin", "teacher", "student", "parent"],
     "/list/assignments": ["admin", "teacher", "student", "parent"],
     "/list/results": ["admin", "teacher", "student", "parent"],
     "/list/attendance": ["admin", "teacher", "student", "parent"],
     "/list/events": ["admin", "teacher", "student", "parent"],
     "/list/announcements": ["admin", "teacher", "student", "parent"],
-  };
+    
+  }

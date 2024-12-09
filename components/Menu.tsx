@@ -51,7 +51,7 @@ const menuItems = [
         {
           icon: "/reportcard.png",
           label: "Daily report",
-          href: "/list/report",
+          href: "/list/reports",
           visible: ["admin", "teacher","parent"],
         },
         {
