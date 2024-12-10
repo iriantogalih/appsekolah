@@ -2,13 +2,14 @@ import Formmodal from "@/components/Formmodal"
 import Pagination from "@/components/Pagination"
 import Table from "@/components/Table"
 import Tablesearch from "@/components/Tablesearch"
-import {lessonsData,role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
+import { auth } from "@clerk/nextjs/server"
 import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
-import Link from "next/link"
-import { ImageResponse } from "next/server"
+
+const {sessionClaims } = await auth()
+const role = (sessionClaims?.metadata as { role?: string })?.role
 
 type Lessonlist = Lesson & {subject: Subject} & {class: Class} & {teacher: Teacher}
 
@@ -32,10 +33,11 @@ const columns = [
     accessor: "teacher", 
     className:"hidden lg:table-cell",
   },
-  {
+   //{/* if role admin action will appear if not action will not appear */}
+   ...(role === "admin" || role === "teacher" ? [{
     header: "Actions", 
     accessor: "actions", 
-  },
+  }] :[]),
 ]
 
 const renderRow = (item: Lessonlist) => (
@@ -47,16 +49,7 @@ const renderRow = (item: Lessonlist) => (
     <td className="hidden lg:table-cell">{item.teacher.name + " " + item.teacher.surname}</td>
     <td>
       <div className="flex items-center gap-2">
-        {/*<Link href={`/list/lessons/${item.id}`}>
-          <button className="w-7 h-7 flex items-center justify-center bg-lamaSky rounded-full">
-            <Image src="/edit.png" alt="" width={16} height={16} />
-          </button>
-          
-        </Link>*/}
-        {role === "admin" && (
-          //<button className="w-7 h-7 flex items-center justify-center bg-lamaPurple rounded-full">
-          //  <Image src="/delete.png" alt="" width={16} height={16} />
-          //</button>
+        {(role === "admin" || role === "teacher") && (
           <>
             <Formmodal table="lesson" type="update" data={item} />
             <Formmodal table="lesson" type="delete" id={item.id} />
@@ -138,10 +131,7 @@ const LessonsListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center bg-lamaYellow rounded-full" >
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            {role === "admin" && (
-              //<button className="w-8 h-8 flex items-center justify-center bg-lamaYellow rounded-full" >
-              // <Image src="/plus.png" alt="" width={14} height={14} />
-              //</button>
+            {(role === "admin" || role === "teacher") && (
               <Formmodal table="lesson" type="create" />
             )}
            

@@ -2,13 +2,14 @@ import Formmodal from "@/components/Formmodal"
 import Pagination from "@/components/Pagination"
 import Table from "@/components/Table"
 import Tablesearch from "@/components/Tablesearch"
-import { role, subjectsData } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
+import { auth } from "@clerk/nextjs/server"
 import { Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
-import Link from "next/link"
-import { ImageResponse } from "next/server"
+
+const {sessionClaims } = await auth()
+const role = (sessionClaims?.metadata as { role?: string })?.role
 
 type SubjectsList =Subject & {teachers: Teacher[]}
 
@@ -23,10 +24,11 @@ const columns = [
     accessor: "teachers", 
    
   },
-  {
+  //{/* if role admin action will appear if not action will not appear */}
+  ...(role === "admin"  ? [{
     header: "Actions", 
     accessor: "actions", 
-  },
+  }] :[]),
 ]
 
 const renderRow = (item: SubjectsList) => (
@@ -37,16 +39,7 @@ const renderRow = (item: SubjectsList) => (
     <td className="">{item.teachers.map((teacher) => teacher.name).join(", ")}</td>
     <td>
       <div className="flex items-center gap-2">
-        {/*<Link href={`/list/subjects/${item.id}`}>
-          <button className="w-7 h-7 flex items-center justify-center bg-lamaSky rounded-full">
-            <Image src="/edit.png" alt="" width={16} height={16} />
-          </button>
-          
-        </Link> */}
         {role === "admin" && (
-          //<button className="w-7 h-7 flex items-center justify-center bg-lamaPurple rounded-full">
-          //  <Image src="/delete.png" alt="" width={16} height={16} />
-          //</button>
           <>
             <Formmodal table="subject" type="update" data={item} />
             <Formmodal table="subject" type="delete" id={item.id} />
@@ -117,9 +110,6 @@ const SubjectListPage = async (
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {role === "admin" && (
-              //<button className="w-8 h-8 flex items-center justify-center bg-lamaYellow rounded-full" >
-              // <Image src="/plus.png" alt="" width={14} height={14} />
-              //</button>
               <Formmodal table="subject" type="create" />
             )}
            

@@ -2,13 +2,15 @@ import Formmodal from "@/components/Formmodal"
 import Pagination from "@/components/Pagination"
 import Table from "@/components/Table"
 import Tablesearch from "@/components/Tablesearch"
-import { role, studentsData, teachersData } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
+import { auth } from "@clerk/nextjs/server"
 import { Class, Grade, Prisma, Student } from "@prisma/client"
 import Image from "next/image"
 import Link from "next/link"
-import { ImageResponse } from "next/server"
+
+const {sessionClaims } = await auth()
+const role = (sessionClaims?.metadata as { role?: string })?.role
 
 type StudentList = Student & {grade: Grade} & {class: Class}
 
@@ -38,10 +40,11 @@ const columns = [
     accessor: "address", 
     className:"hidden lg:table-cell",
   },
-  {
+  //{/* if role admin action will appear if not action will not appear */}
+  ...(role === "admin"  ? [{
     header: "Actions", 
     accessor: "actions", 
-  },
+  }] :[]),
 ]
 
 const renderRow = (item: StudentList) => (
@@ -66,9 +69,6 @@ const renderRow = (item: StudentList) => (
           
         </Link>
         {role === "admin" && (
-          //<button className="w-7 h-7 flex items-center justify-center bg-lamaPurple rounded-full">
-          //  <Image src="/delete.png" alt="" width={16} height={16} />
-          //</button>
           <>
             <Formmodal table="student" type="delete" id={item.id} />
           </>
@@ -154,9 +154,6 @@ const StudentListPage = async({
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
             {role === "admin" && (
-              //<button className="w-8 h-8 flex items-center justify-center bg-lamaYellow rounded-full" >
-              // <Image src="/plus.png" alt="" width={14} height={14} />
-              //</button>
               <Formmodal table="student" type="create" />
             )}
            
