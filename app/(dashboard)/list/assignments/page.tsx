@@ -8,8 +8,9 @@ import { auth } from "@clerk/nextjs/server"
 import { Assignment, Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 
-const {sessionClaims } = await auth()
+const { userId, sessionClaims } = await auth()
 const role = (sessionClaims?.metadata as { role?: string })?.role
+const currentUserId = userId
 
 type Assignmentlist = Assignment & {lesson:{
   subject: Subject,
@@ -84,6 +85,7 @@ const AssignmentsListPage = async ({
   // URL PARAMS CONDITION
 
   const query: Prisma.AssignmentWhereInput = {}
+  query.lesson = {}
 
   if (queryParams) {
     for (const[key,value] of Object.entries(queryParams)) {
@@ -93,7 +95,7 @@ const AssignmentsListPage = async ({
             query.lesson = {teacherId : value}
           break
           case "classId":
-            query.lesson = {classId: parseInt(value)}
+            query.lesson.classId =  parseInt(value)
           break
           case "search":
             query.OR = [
@@ -110,6 +112,37 @@ const AssignmentsListPage = async ({
       
     }
   }
+
+  // ROLE CONDITIONS
+  console.log(currentUserId)
+  switch (role) {
+    case "admin":
+      break;
+      case "teacher":
+        query.lesson.teacherId = currentUserId!;
+        break;
+      case "student":
+        query.lesson.class = {
+          students:{
+            some: {
+              id: currentUserId!,
+          }}
+        }
+        break;
+      case "parent":
+          query.lesson.class = {
+            students:{
+              some: {
+                parentId: currentUserId!,
+            }}
+          }
+        break;
+    default:
+      break;
+  }
+
+
+
 
   const [data, count] = await prisma.$transaction([
     prisma.assignment.findMany({
