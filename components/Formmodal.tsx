@@ -29,6 +29,10 @@ const LessonForm = dynamic(()=> import("./forms/LessonForm"),{
     loading: () => <h1>Loading...</h1>
 })
 
+const ReportForm = dynamic(()=> import("./forms/ReportForm"),{
+    loading: () => <h1>Loading...</h1>
+})
+
 const ExamForm = dynamic(()=> import("./forms/ExamForm"),{
     loading: () => <h1>Loading...</h1>
 })
@@ -63,6 +67,7 @@ const forms:{
     result: (type, data) => <ResultForm type={type} data={data} />,
     event: (type, data) => <EventForm type={type} data={data} />,
     announcement: (type, data) => <AnnouncementForm type={type} data={data} />,
+    report: (type, data) => <ReportForm type={type} data={data} />,
 }
 const Formmodal = ({
     table, 
@@ -77,6 +82,7 @@ const Formmodal = ({
     | "subject"
     | "class"
     | "lesson"
+    | "report"
     | "exam"
     | "assignment"
     | "result"
