@@ -5,7 +5,7 @@ import Tablesearch from "@/components/Tablesearch"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { auth } from "@clerk/nextjs/server"
-import { Assignment, Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client"
+import { Assignment, Class, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 
 const { userId, sessionClaims } = await auth()

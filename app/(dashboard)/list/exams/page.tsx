@@ -2,15 +2,15 @@ import Formmodal from "@/components/Formmodal"
 import Pagination from "@/components/Pagination"
 import Table from "@/components/Table"
 import Tablesearch from "@/components/Tablesearch"
-import { examsData, role } from "@/lib/data"
 import prisma from "@/lib/prisma"
 import { ITEM_PER_PAGE } from "@/lib/settings"
 import { auth } from "@clerk/nextjs/server"
-import { Class, Exam, Lesson, Prisma, Subject, Teacher } from "@prisma/client"
+import { Class, Exam, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 
-const {sessionClaims } = await auth()
+const { userId, sessionClaims } = await auth()
 const role = (sessionClaims?.metadata as { role?: string })?.role
+const currentUserId = userId
 
 type Examlist = Exam & {lesson: {
   subject: Subject,
@@ -86,6 +86,7 @@ const ExamsListPage = async ({
     // URL PARAMS CONDITION
   
     const query: Prisma.ExamWhereInput = {}
+    query.lesson = {}
   
     if (queryParams) {
       for (const[key,value] of Object.entries(queryParams)) {
@@ -111,6 +112,34 @@ const ExamsListPage = async ({
         
       }
     }
+
+    // ROLE CONDITIONS
+  //console.log(currentUserId)
+  switch (role) {
+    case "admin":
+      break;
+      case "teacher":
+        query.lesson.teacherId = currentUserId!;
+        break;
+      case "student":
+        query.lesson.class = {
+          students:{
+            some: {
+              id: currentUserId!,
+          }}
+        }
+        break;
+      case "parent":
+          query.lesson.class = {
+            students:{
+              some: {
+                parentId: currentUserId!,
+            }}
+          }
+        break;
+    default:
+      break;
+  }
   
     const [data, count] = await prisma.$transaction([
       prisma.exam.findMany({
