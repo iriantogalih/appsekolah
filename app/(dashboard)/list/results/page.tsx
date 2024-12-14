@@ -8,8 +8,9 @@ import { auth } from "@clerk/nextjs/server"
 import { Assignment, Exam, Prisma, Result, Student } from "@prisma/client"
 import Image from "next/image"
 
-const {sessionClaims } = await auth()
+const {userId, sessionClaims } = await auth()
 const role = (sessionClaims?.metadata as { role?: string })?.role
+const currentUserId = userId
 
 type Resultlist = {
   id: number;
@@ -98,6 +99,7 @@ const ResultsListPage = async ({
   // URL PARAMS CONDITION
 
   const query: Prisma.ResultWhereInput = {}
+
 
   if (queryParams) {
     for (const[key,value] of Object.entries(queryParams)) {
