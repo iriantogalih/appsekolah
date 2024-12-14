@@ -96,10 +96,10 @@ const ExamsListPage = async ({
         if(value !== undefined){
           switch(key) {
             case "teacherId":
-              query.lesson = {teacherId : value}
+              query.lesson.teacherId = value
             break
             case "classId":
-              query.lesson = {classId: parseInt(value)}
+              query.lesson.classId= parseInt(value)
             break
             case "search":
               query.OR = [
@@ -117,7 +117,7 @@ const ExamsListPage = async ({
     }
 
     // ROLE CONDITIONS
-  //console.log(currentUserId)
+ 
   switch (role) {
     case "admin":
       break;
