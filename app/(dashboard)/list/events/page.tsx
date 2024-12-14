@@ -59,7 +59,7 @@ const EventsListPage = async ({
   const renderRow = (item: Eventlist) => (
     <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
       <td className="">{item.title}</td>
-      <td className="">{item.class.name}</td>
+      <td className="">{item.class?.name || "All Class"}</td>
       <td className="hidden lg:table-cell">{item.description}</td>
       <td className="hidden lg:table-cell">{new Intl.DateTimeFormat("id-ID", {dateStyle:"medium"}).format(item.startDate)}</td>
       <td className="hidden lg:table-cell">{new Intl.DateTimeFormat("id-ID", {dateStyle:"medium"}).format(item.endDate)}</td>
