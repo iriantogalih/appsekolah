@@ -8,9 +8,7 @@ import { auth } from "@clerk/nextjs/server"
 import { Class, Exam, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 
-const { userId, sessionClaims } = await auth()
-const role = (sessionClaims?.metadata as { role?: string })?.role
-const currentUserId = userId
+
 
 type Examlist = Exam & {lesson: {
   subject: Subject,
@@ -18,67 +16,72 @@ type Examlist = Exam & {lesson: {
   teacher: Teacher,
 }}
 
-{/* Create header table */}
-const columns = [
-  {
-    header: "Subject Name", 
-    accessor: "name",
-  }, 
-  {
-    header: "Title", 
-    accessor: "title",
-  },    
-  {
-    header: "Class ", 
-    accessor: "class", 
-   
-  },
-  {
-    header: "Teacher Names", 
-    accessor: "teachers", 
-    className:"hidden lg:table-cell",
-  },
-  {
-    header: "Dates", 
-    accessor: "date", 
-    className:"hidden lg:table-cell",
-  },
-  //{/* if role admin action will appear if not action will not appear */}
-  ...(role === "admin" || role === "teacher" ? [{
-    header: "Actions", 
-    accessor: "actions", 
-  }] :[]),
-]
 
-const renderRow = (item: Examlist) => (
-  <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
-    <td className="flex items-center gap-4 p-4">
-        {item.lesson.subject.name}
-    </td>
-    <td className="">{item.title}</td>
-    <td className="">{item.lesson.class.name}</td>
-    <td className="hidden md:table-cell">{item.lesson.teacher.name + " " + item.lesson.teacher.surname}</td>
-    <td className="hidden md:table-cell">{new Intl.DateTimeFormat("id-ID", {dateStyle:"medium"}).format(item.startTime)}</td>
-    <td>
-      <div className="flex items-center gap-2">
-        {(role === "admin" || role === "teacher") && (
-          <>
-            <Formmodal table="exam" type="update" data={item} />
-            <Formmodal table="exam" type="delete" id={item.id} />
-          </>
-          
-        )}
-      </div>
-    </td>
-  </tr>
-)
 
 const ExamsListPage = async ({
     searchParams,
   }:{
     searchParams: {[key:string]:string | undefined}
   }) => {
+
+    const { userId, sessionClaims } = await auth()
+    const role = (sessionClaims?.metadata as { role?: string })?.role
+    const currentUserId = userId
     
+    {/* Create header table */}
+    const columns = [
+      {
+        header: "Subject Name", 
+        accessor: "name",
+      }, 
+      {
+        header: "Title", 
+        accessor: "title",
+      },    
+      {
+        header: "Class ", 
+        accessor: "class", 
+      
+      },
+      {
+        header: "Teacher Names", 
+        accessor: "teachers", 
+        className:"hidden lg:table-cell",
+      },
+      {
+        header: "Dates", 
+        accessor: "date", 
+        className:"hidden lg:table-cell",
+      },
+      //{/* if role admin action will appear if not action will not appear */}
+      ...(role === "admin" || role === "teacher" ? [{
+        header: "Actions", 
+        accessor: "actions", 
+      }] :[]),
+    ]
+
+    const renderRow = (item: Examlist) => (
+      <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
+        <td className="flex items-center gap-4 p-4">
+            {item.lesson.subject.name}
+        </td>
+        <td className="">{item.title}</td>
+        <td className="">{item.lesson.class.name}</td>
+        <td className="hidden md:table-cell">{item.lesson.teacher.name + " " + item.lesson.teacher.surname}</td>
+        <td className="hidden md:table-cell">{new Intl.DateTimeFormat("id-ID", {dateStyle:"medium"}).format(item.startTime)}</td>
+        <td>
+          <div className="flex items-center gap-2">
+            {(role === "admin" || role === "teacher") && (
+              <>
+                <Formmodal table="exam" type="update" data={item} />
+                <Formmodal table="exam" type="delete" id={item.id} />
+              </>
+              
+            )}
+          </div>
+        </td>
+      </tr>
+    )
     const {page, ...queryParams} = searchParams;
   
     const p = page ? parseInt(page) : 1;

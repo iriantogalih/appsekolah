@@ -8,72 +8,76 @@ import { auth } from "@clerk/nextjs/server"
 import { Parent, Prisma, Student } from "@prisma/client"
 import Image from "next/image"
 
-const {sessionClaims } = await auth()
-const role = (sessionClaims?.metadata as { role?: string })?.role
 
 
 
 type ParentList = Parent & {students: Student[]} 
 
-{/* Create header table */}
-const columns = [
-  {
-    header: "Info", 
-    accessor: "info",
-  },
-  {
-    header: "Student Names", 
-    accessor: "students", 
-    className:"hidden md:table-cell",
-  },
-  {
-    header: "Phone", 
-    accessor: "phone", 
-    className:"hidden lg:table-cell",
-  },
-  {
-    header: "Address", 
-    accessor: "address", 
-    className:"hidden lg:table-cell",
-  },
-   //{/* if role admin action will appear if not action will not appear */}
-   ...(role === "admin"  ? [{
-    header: "Actions", 
-    accessor: "actions", 
-  }] :[]),
-]
 
-const renderRow = (item: ParentList) => (
-  <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
-    <td className="flex items-center gap-4 p-4">
-      
-      <div className="flex flex-col">
-        <h3 className="font-semibold">{item.name + " " + item.surname}</h3>
-        <p className="text-xs text-gray-500">{item?.email}</p>
-      </div>
-    </td>
-    <td className="hidden md:table-cell">{item.students.map((student)=>student.name+" "+student.surname).join(",")}</td>
-    <td className="hidden lg:table-cell">{item.phone}</td>
-    <td className="hidden lg:table-cell">{item.address}</td>
-    <td>
-      <div className="flex items-center gap-2">
-        {role === "admin" && (
-          <>
-            <Formmodal table="parent" type="update" data={item} />
-            <Formmodal table="parent" type="delete" id={item.id} />
-          </>
-          
-        )}
-      </div>
-    </td>
-  </tr>
-)
 
 const ParentListPage = async({
   searchParams,
 }:{
   searchParams: {[key:string]:string | undefined }
 }) => {
+
+
+  const {sessionClaims } = await auth()
+  const role = (sessionClaims?.metadata as { role?: string })?.role
+
+  {/* Create header table */}
+  const columns = [
+    {
+      header: "Info", 
+      accessor: "info",
+    },
+    {
+      header: "Student Names", 
+      accessor: "students", 
+      className:"hidden md:table-cell",
+    },
+    {
+      header: "Phone", 
+      accessor: "phone", 
+      className:"hidden lg:table-cell",
+    },
+    {
+      header: "Address", 
+      accessor: "address", 
+      className:"hidden lg:table-cell",
+    },
+    //{/* if role admin action will appear if not action will not appear */}
+    ...(role === "admin"  ? [{
+      header: "Actions", 
+      accessor: "actions", 
+    }] :[]),
+  ]
+
+  const renderRow = (item: ParentList) => (
+    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
+      <td className="flex items-center gap-4 p-4">
+        
+        <div className="flex flex-col">
+          <h3 className="font-semibold">{item.name + " " + item.surname}</h3>
+          <p className="text-xs text-gray-500">{item?.email}</p>
+        </div>
+      </td>
+      <td className="hidden md:table-cell">{item.students.map((student)=>student.name+" "+student.surname).join(",")}</td>
+      <td className="hidden lg:table-cell">{item.phone}</td>
+      <td className="hidden lg:table-cell">{item.address}</td>
+      <td>
+        <div className="flex items-center gap-2">
+          {role === "admin" && (
+            <>
+              <Formmodal table="parent" type="update" data={item} />
+              <Formmodal table="parent" type="delete" id={item.id} />
+            </>
+            
+          )}
+        </div>
+      </td>
+    </tr>
+  )
 
   const {page, ...queryParams} = searchParams;
 

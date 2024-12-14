@@ -8,9 +8,7 @@ import { auth } from "@clerk/nextjs/server"
 import { Assignment, Exam, Prisma, Result, Student } from "@prisma/client"
 import Image from "next/image"
 
-const {userId, sessionClaims } = await auth()
-const role = (sessionClaims?.metadata as { role?: string })?.role
-const currentUserId = userId
+
 
 type Resultlist = {
   id: number;
@@ -24,67 +22,7 @@ type Resultlist = {
   startTime: Date;
 }
 
-{/* Create header table */}
-const columns = [
-  {
-    header: "Title", 
-    accessor: "title",
-  },    
-  {
-    header: "Class ", 
-    accessor: "class", 
-    
-  },
-  {
-    header: "Teacher Names", 
-    accessor: "teachers", 
-    className:"hidden lg:table-cell",
-  },
-  {
-    header: "Student Names", 
-    accessor: "student", 
-    className:"hidden lg:table-cell",
-  },
-  {
-    header: "Dates", 
-    accessor: "date", 
-    className:"hidden lg:table-cell",
-  },
-  {
-    header: "Scores", 
-    accessor: "score", 
-    className:"hidden lg:table-cell",
-  },
-  //{/* if role admin action will appear if not action will not appear */}
-  ...(role === "admin" || role === "teacher" ? [{
-    header: "Actions", 
-    accessor: "actions", 
-  }] :[]),
-]
 
-const renderRow = (item: Resultlist) => (
-  <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
-    <td className="flex items-center gap-4 p-4">
-        {item.title}
-    </td>
-    <td className="">{item.className}</td>
-    <td className="hidden md:table-cell">{item.teacherName + " " + item.teacherSurname}</td>
-    <td className="hidden md:table-cell">{item.studentName+ " " +item.studentSurname}</td>
-    <td className="hidden md:table-cell">{new Intl.DateTimeFormat("en-US").format(item.startTime)}</td>
-    <td className="hidden md:table-cell">{item.score}</td>
-    <td>
-      <div className="flex items-center gap-2">
-        {(role === "admin" || role === "teacher") && (
-          <>
-            <Formmodal table="result" type="update" data={item} />
-            <Formmodal table="result" type="delete" id={item.id} />
-          </>
-          
-        )}
-      </div>
-    </td>
-  </tr>
-)
 
 const ResultsListPage = async ({
   searchParams,
@@ -92,6 +30,72 @@ const ResultsListPage = async ({
   searchParams: {[key:string]:string | undefined}
 }) => {
   
+  const {userId, sessionClaims } = await auth()
+  const role = (sessionClaims?.metadata as { role?: string })?.role
+  const currentUserId = userId
+
+  {/* Create header table */}
+  const columns = [
+    {
+      header: "Title", 
+      accessor: "title",
+    },    
+    {
+      header: "Class ", 
+      accessor: "class", 
+      
+    },
+    {
+      header: "Teacher Names", 
+      accessor: "teachers", 
+      className:"hidden lg:table-cell",
+    },
+    {
+      header: "Student Names", 
+      accessor: "student", 
+      className:"hidden lg:table-cell",
+    },
+    {
+      header: "Dates", 
+      accessor: "date", 
+      className:"hidden lg:table-cell",
+    },
+    {
+      header: "Scores", 
+      accessor: "score", 
+      className:"hidden lg:table-cell",
+    },
+    //{/* if role admin action will appear if not action will not appear */}
+    ...(role === "admin" || role === "teacher" ? [{
+      header: "Actions", 
+      accessor: "actions", 
+    }] :[]),
+  ]
+
+  const renderRow = (item: Resultlist) => (
+    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
+      <td className="flex items-center gap-4 p-4">
+          {item.title}
+      </td>
+      <td className="">{item.className}</td>
+      <td className="hidden md:table-cell">{item.teacherName + " " + item.teacherSurname}</td>
+      <td className="hidden md:table-cell">{item.studentName+ " " +item.studentSurname}</td>
+      <td className="hidden md:table-cell">{new Intl.DateTimeFormat("en-US").format(item.startTime)}</td>
+      <td className="hidden md:table-cell">{item.score}</td>
+      <td>
+        <div className="flex items-center gap-2">
+          {(role === "admin" || role === "teacher") && (
+            <>
+              <Formmodal table="result" type="update" data={item} />
+              <Formmodal table="result" type="delete" id={item.id} />
+            </>
+            
+          )}
+        </div>
+      </td>
+    </tr>
+  )
+
   const {page, ...queryParams} = searchParams;
 
   const p = page ? parseInt(page) : 1;

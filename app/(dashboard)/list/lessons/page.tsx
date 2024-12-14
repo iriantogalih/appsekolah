@@ -8,64 +8,67 @@ import { auth } from "@clerk/nextjs/server"
 import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 
-const {sessionClaims } = await auth()
-const role = (sessionClaims?.metadata as { role?: string })?.role
+
 
 type Lessonlist = Lesson & {subject: Subject} & {class: Class} & {teacher: Teacher}
 
-{/* Create header table */}
-const columns = [
-  {
-    header: "Subject Name", 
-    accessor: "subject",
-  },
-  {
-    header: "Title", 
-    accessor: "title",
-  },
-  {
-    header: "Class", 
-    accessor: "class", 
-    
-  },
-  {
-    header: "Teacher Name", 
-    accessor: "teacher", 
-    className:"hidden lg:table-cell",
-  },
-   //{/* if role admin action will appear if not action will not appear */}
-   ...(role === "admin" || role === "teacher" ? [{
-    header: "Actions", 
-    accessor: "actions", 
-  }] :[]),
-]
 
-const renderRow = (item: Lessonlist) => (
-  <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
-    <td className="flex items-center gap-4 p-4">{item.subject.name}</td>
-    
-    <td className="">{item.name}</td>
-    <td className="">{item.class.name}</td>
-    <td className="hidden lg:table-cell">{item.teacher.name + " " + item.teacher.surname}</td>
-    <td>
-      <div className="flex items-center gap-2">
-        {(role === "admin" || role === "teacher") && (
-          <>
-            <Formmodal table="lesson" type="update" data={item} />
-            <Formmodal table="lesson" type="delete" id={item.id} />
-          </>
-          
-        )}
-      </div>
-    </td>
-  </tr>
-)
 const LessonsListPage = async ({
   searchParams,
 }:{
   searchParams: {[key:string]:string | undefined}
 }) => {
+
+  const {sessionClaims } = await auth()
+  const role = (sessionClaims?.metadata as { role?: string })?.role
   
+  {/* Create header table */}
+  const columns = [
+    {
+      header: "Subject Name", 
+      accessor: "subject",
+    },
+    {
+      header: "Title", 
+      accessor: "title",
+    },
+    {
+      header: "Class", 
+      accessor: "class", 
+      
+    },
+    {
+      header: "Teacher Name", 
+      accessor: "teacher", 
+      className:"hidden lg:table-cell",
+    },
+    //{/* if role admin action will appear if not action will not appear */}
+    ...(role === "admin" || role === "teacher" ? [{
+      header: "Actions", 
+      accessor: "actions", 
+    }] :[]),
+  ]
+
+  const renderRow = (item: Lessonlist) => (
+    <tr key={item.id} className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight">
+      <td className="flex items-center gap-4 p-4">{item.subject.name}</td>
+      
+      <td className="">{item.name}</td>
+      <td className="">{item.class.name}</td>
+      <td className="hidden lg:table-cell">{item.teacher.name + " " + item.teacher.surname}</td>
+      <td>
+        <div className="flex items-center gap-2">
+          {(role === "admin" || role === "teacher") && (
+            <>
+              <Formmodal table="lesson" type="update" data={item} />
+              <Formmodal table="lesson" type="delete" id={item.id} />
+            </>
+            
+          )}
+        </div>
+      </td>
+    </tr>
+  )
   const {page, ...queryParams} = searchParams;
 
   const p = page ? parseInt(page) : 1;
