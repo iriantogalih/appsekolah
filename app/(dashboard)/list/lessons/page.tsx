@@ -8,10 +8,7 @@ import { auth } from "@clerk/nextjs/server"
 import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client"
 import Image from "next/image"
 
-
-
 type Lessonlist = Lesson & {subject: Subject} & {class: Class} & {teacher: Teacher}
-
 
 const LessonsListPage = async ({
   searchParams,
@@ -19,8 +16,9 @@ const LessonsListPage = async ({
   searchParams: {[key:string]:string | undefined}
 }) => {
 
-  const {sessionClaims } = await auth()
+  const { sessionClaims } = await auth()
   const role = (sessionClaims?.metadata as { role?: string })?.role
+  
   
   {/* Create header table */}
   const columns = [

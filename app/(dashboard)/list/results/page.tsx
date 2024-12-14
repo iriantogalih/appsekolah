@@ -126,6 +126,31 @@ const ResultsListPage = async ({
     }
   }
 
+  // ROLE CONDITIONS
+
+  switch (role) {
+    case "admin":
+      break;
+    case "teacher":
+      query.OR = [
+        { exam: { lesson: { teacherId: currentUserId! } } },
+        { assignment: { lesson: { teacherId: currentUserId! } } },
+      ];
+      break;
+
+    case "student":
+      query.studentId = currentUserId!;
+      break;
+
+    case "parent":
+      query.studnet = {
+        parentId: currentUserId!,
+      };
+      break;
+    default:
+      break;
+  }
+
   const [dataRes, count] = await prisma.$transaction([
     prisma.result.findMany({
       where:query,
